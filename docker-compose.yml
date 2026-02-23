@@ -1,0 +1,77 @@
+services:
+  drupal-ui-automation:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"   # API server
+      - "8080:8080"   # noVNC web interface
+      - "5900:5900"   # VNC server (optional direct access)
+    volumes:
+      - ./storage:/app/storage  # Persistent browser contexts
+      - /tmp:/tmp               # Screenshots and artifacts
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=development
+      - DISPLAY=:99
+      - NOVNC_URL=http://localhost:8080/vnc.html
+      # BASE_URL and DEFAULT_LOGIN_URL are read from .env file
+      # To override, set DEFAULT_LOGIN_URL=https://your-drupal-site.com/user/login in .env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+
+  # Test service for running tests inside container
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    volumes:
+      - ./storage:/app/storage  # Persistent browser contexts
+      - /tmp:/tmp               # Screenshots and artifacts
+    environment:
+      - NODE_ENV=test
+      - DISPLAY=:99
+      - NOVNC_URL=http://localhost:8080/vnc.html
+      - BASE_URL=https://example.com
+      - DEFAULT_LOGIN_URL=https://example.com/login
+    profiles:
+      - test
+
+  # Optional: Add a Drupal instance for testing
+  # drupal:
+  #   image: drupal:10-apache
+  #   ports:
+  #     - "8081:80"
+  #   volumes:
+  #     - drupal_modules:/var/www/html/modules
+  #     - drupal_themes:/var/www/html/themes
+  #     - drupal_sites:/var/www/html/sites
+  #   environment:
+  #     - DRUPAL_DB_HOST=db
+  #     - DRUPAL_DB_NAME=drupal
+  #     - DRUPAL_DB_USER=drupal
+  #     - DRUPAL_DB_PASSWORD=drupal
+  #   depends_on:
+  #     - db
+  #
+  # db:
+  #   image: mysql:8.0
+  #   environment:
+  #     - MYSQL_DATABASE=drupal
+  #     - MYSQL_USER=drupal
+  #     - MYSQL_PASSWORD=drupal
+  #     - MYSQL_ROOT_PASSWORD=root
+  #   volumes:
+  #     - db_data:/var/lib/mysql
+
+# volumes:
+#   drupal_modules:
+#   drupal_themes:
+#   drupal_sites:
+#   db_data:

@@ -1,0 +1,9 @@
+name: drupal-ui-automation-examples
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python>=3.8
+  - pip
+  - pip:
+    - requests>=2.25.0

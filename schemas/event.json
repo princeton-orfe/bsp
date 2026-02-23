@@ -1,0 +1,60 @@
+{
+  "contentType": "event",
+  "description": "Schema for Event content type",
+  "fields": {
+    "title": {
+      "selector": "[name=\"title[0][value]\"]",
+      "type": "text",
+      "required": true,
+      "label": "Title"
+    },
+    "body": {
+      "selector": "[name=\"body[0][value]\"]",
+      "type": "textarea",
+      "required": false,
+      "label": "Description"
+    },
+    "event_date": {
+      "selector": "[name=\"field_event_date[0][value][date]\"]",
+      "type": "date",
+      "required": false,
+      "label": "Event Date"
+    },
+    "event_time": {
+      "selector": "[name=\"field_event_date[0][value][time]\"]",
+      "type": "time",
+      "required": false,
+      "label": "Event Time"
+    },
+    "location": {
+      "selector": "[name=\"field_location[0][value]\"]",
+      "type": "text",
+      "required": false,
+      "label": "Location"
+    },
+    "status": {
+      "selector": "[name=\"status[value]\"]",
+      "type": "checkbox",
+      "required": false,
+      "label": "Published"
+    }
+  },
+  "fallback": {
+    "title": {
+      "selector": "h1.page-title, .node__title, .field--name-title",
+      "type": "text"
+    },
+    "body": {
+      "selector": ".node__content .field--name-body, .field--name-body",
+      "type": "html"
+    },
+    "event_date": {
+      "selector": ".field--name-field-event-date",
+      "type": "text"
+    },
+    "location": {
+      "selector": ".field--name-field-location",
+      "type": "text"
+    }
+  }
+}

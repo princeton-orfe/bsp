@@ -1,0 +1,24 @@
+{
+  "contentType": "ps_news",
+  "description": "Schema for News content type",
+  "fields": {
+    "title": {
+      "selector": "[name=\"title[0][value]\"]",
+      "type": "text",
+      "required": true,
+      "label": "Title"
+    },
+    "body": {
+      "selector": "[name=\"field_ps_body[0][value]\"]",
+      "type": "textarea",
+      "required": false,
+      "label": "Body"
+    },
+    "status": {
+      "selector": "[name=\"status[value]\"]",
+      "type": "checkbox",
+      "required": false,
+      "label": "Published"
+    }
+  }
+}

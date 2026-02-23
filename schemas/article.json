@@ -1,0 +1,47 @@
+{
+  "contentType": "article",
+  "description": "Schema for Article content type",
+  "fields": {
+    "title": {
+      "selector": "[name=\"title[0][value]\"]",
+      "type": "text",
+      "required": true,
+      "label": "Title"
+    },
+    "body": {
+      "selector": "[name=\"body[0][value]\"]",
+      "type": "textarea",
+      "required": false,
+      "label": "Body"
+    },
+    "summary": {
+      "selector": "[name=\"body[0][summary]\"]",
+      "type": "textarea",
+      "required": false,
+      "label": "Summary"
+    },
+    "status": {
+      "selector": "[name=\"status[value]\"]",
+      "type": "checkbox",
+      "required": false,
+      "label": "Published"
+    },
+    "tags": {
+      "selector": "[name=\"field_tags[target_id]\"]",
+      "type": "text",
+      "required": false,
+      "multiple": true,
+      "label": "Tags"
+    }
+  },
+  "fallback": {
+    "title": {
+      "selector": "h1.page-title, .node__title, .field--name-title",
+      "type": "text"
+    },
+    "body": {
+      "selector": ".node__content .field--name-body, .field--name-body",
+      "type": "html"
+    }
+  }
+}

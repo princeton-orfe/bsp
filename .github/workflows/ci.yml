@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths-ignore:
+      - 'README.md'
+      - 'README'
+      - '*.md'
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Build test container
+      run: docker compose build test
+
+    - name: Run unit tests in container
+      run: |
+        docker compose --profile test run --rm test npm run test:unit:only
+
+    - name: Run integration tests in container
+      run: |
+        docker compose --profile test run --rm test npm run test:integration:direct
+
+    - name: Run full test suite in container
+      run: |
+        docker compose --profile test run --rm test npm run test:all
