@@ -89,8 +89,9 @@ describe('CommandQueue', () => {
 
   describe('Timeout Handling', () => {
     test('should timeout commands that exceed timeout limit', async () => {
+      let resolveSlowCmd;
       const slowCmd = jest.fn(async () => {
-        await new Promise(resolve => setTimeout(resolve, 5000)); // 5 seconds
+        await new Promise(resolve => { resolveSlowCmd = resolve; });
         return 'too-slow';
       });
 
@@ -101,6 +102,9 @@ describe('CommandQueue', () => {
 
       await expect(promise).rejects.toThrow('Command timeout after 100ms');
       expect(slowCmd).toHaveBeenCalledTimes(1);
+
+      // Clean up the dangling promise to avoid open handles
+      resolveSlowCmd();
     });
 
     test('should use default timeout when not specified', async () => {
@@ -202,7 +206,7 @@ describe('CommandQueue', () => {
       expect(p2Failed).toBe(true);
 
       const status = queue.getStatus();
-      expect(status.stats.totalProcessed).toBe(3);
+      expect(status.stats.totalProcessed).toBe(2); // only successful commands
       expect(status.stats.totalErrors).toBe(1);
     });
   });
@@ -222,6 +226,10 @@ describe('CommandQueue', () => {
       const promise2 = queue.enqueue(pendingCmd1, { name: 'pending-1' });
       const promise3 = queue.enqueue(pendingCmd2, { name: 'pending-2' });
 
+      // Attach rejection handlers before clear() to avoid unhandled rejection
+      const rejection2 = promise2.catch(e => e);
+      const rejection3 = promise3.catch(e => e);
+
       // Give first command time to start
       await new Promise(resolve => setTimeout(resolve, 20));
 
@@ -233,8 +241,12 @@ describe('CommandQueue', () => {
       await expect(promise1).resolves.toBe('blocking');
 
       // Pending commands should be rejected
-      await expect(promise2).rejects.toThrow('Queue cleared');
-      await expect(promise3).rejects.toThrow('Queue cleared');
+      const err2 = await rejection2;
+      const err3 = await rejection3;
+      expect(err2).toBeInstanceOf(Error);
+      expect(err2.message).toBe('Queue cleared');
+      expect(err3).toBeInstanceOf(Error);
+      expect(err3.message).toBe('Queue cleared');
 
       // Verify only the blocking command executed
       expect(blockingCmd).toHaveBeenCalledTimes(1);
