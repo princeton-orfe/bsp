@@ -1058,6 +1058,38 @@ class PlaywrightManager {
   }
 
   /**
+   * Extract select/option metadata from a content type's add form.
+   * Returns a map of field names to their available options.
+   */
+  async getFormSelectOptions(contentType) {
+    if (!this.page) {
+      throw new Error('No active page');
+    }
+
+    const baseUrl = process.env.BASE_URL;
+    if (!baseUrl) {
+      throw new Error('BASE_URL environment variable is required');
+    }
+
+    const createUrl = this.buildUrl(baseUrl, `node/add/${contentType}`);
+    await this.page.goto(createUrl, { waitUntil: 'domcontentloaded', timeout: TIMEOUTS.NAVIGATION });
+    await this.page.waitForSelector('form', { timeout: TIMEOUTS.FORM_LOAD });
+
+    const options = await this.page.evaluate(() => {
+      const result = {};
+      document.querySelectorAll('select[name]').forEach(select => {
+        const name = select.getAttribute('name');
+        result[name] = Array.from(select.options)
+          .filter(opt => opt.value && opt.value !== '_none')
+          .map(opt => ({ value: opt.value, label: opt.textContent.trim() }));
+      });
+      return result;
+    });
+
+    return { success: true, contentType, options };
+  }
+
+  /**
    * Update content by node ID
    * Navigates to edit page and updates fields based on provided data
    */

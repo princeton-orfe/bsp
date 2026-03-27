@@ -374,6 +374,27 @@ app.get('/content/types', async (req, res) => {
   }
 });
 
+// Get select field options for a content type's add form
+app.get('/content/form-options/:contentType', async (req, res) => {
+  try {
+    if (!playwrightManager.isReady()) {
+      return res.status(400).json({
+        success: false,
+        error: 'No active browser session. Call /login/interactive first.'
+      });
+    }
+
+    const result = await playwrightManager.getFormSelectOptions(req.params.contentType);
+    res.json(result);
+  } catch (error) {
+    console.error('Form options error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 // Get detailed content information by node ID
 app.get('/content/detail/:nodeId', async (req, res) => {
   const fs = require('fs');
