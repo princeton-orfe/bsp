@@ -1518,8 +1518,36 @@ class PlaywrightManager {
             }
             break;
 
+          case 'checkboxes':
+            // For checkbox groups, select by label text
+            await this.page.getByLabel(String(fieldValue), { exact: true }).check();
+            break;
+
           case 'select':
             await this.page.locator(selector).selectOption(String(fieldValue));
+            break;
+
+          case 'hidden_select':
+            // For select elements hidden by overlay widgets (e.g., aria-autocomplete)
+            // Matches by option value first, then falls back to option text
+            await this.page.evaluate(({ sel, val }) => {
+              const select = document.querySelector(sel);
+              if (!select) throw new Error('Select element not found');
+              const targets = Array.isArray(val) ? val : [val];
+              let matched = 0;
+              Array.from(select.options).forEach(opt => {
+                const isMatch = targets.some(t =>
+                  opt.value === t || opt.textContent.trim() === t
+                );
+                opt.selected = isMatch;
+                if (isMatch) matched++;
+              });
+              if (matched === 0) {
+                const available = Array.from(select.options).map(o => o.textContent.trim()).join(', ');
+                throw new Error(`No matching option for "${targets.join(', ')}". Available: ${available}`);
+              }
+              select.dispatchEvent(new Event('change', { bubbles: true }));
+            }, { sel: selector, val: fieldValue });
             break;
 
           case 'date':

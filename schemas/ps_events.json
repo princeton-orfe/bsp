@@ -8,11 +8,29 @@
       "required": true,
       "label": "Title"
     },
+    "subtitle": {
+      "selector": "[name=\"field_ps_events_subtitle[0][value]\"]",
+      "type": "text",
+      "required": false,
+      "label": "Subtitle"
+    },
     "body": {
       "selector": "[name=\"field_ps_body[0][value]\"]",
       "type": "textarea",
       "required": false,
       "label": "Event Description"
+    },
+    "event_audience": {
+      "selector": "select[name=\"field_ps_events_audience[]\"]",
+      "type": "hidden_select",
+      "required": false,
+      "label": "Event Audience"
+    },
+    "all_day": {
+      "selector": "[name=\"field_ps_events_date[0][all_day]\"]",
+      "type": "checkbox",
+      "required": false,
+      "label": "All Day"
     },
     "event_start_date": {
       "selector": "[name=\"field_ps_events_date[0][value][date]\"]",
